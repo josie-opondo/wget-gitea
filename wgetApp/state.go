@@ -16,6 +16,7 @@ func InitWget() (*WgetApp, error) {
 	once.Do(func() {
 		// Initialize the singleton instance
 		state = newWgetState()
+		err = state.parser()
 	})
 
 	// Return any initialization errors (though none are expected here)
