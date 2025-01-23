@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	wgetutils "wget/wgetUtils"
 )
 
 // parser processes command-line arguments and configures WgetApp settings.
@@ -87,6 +88,12 @@ func (app *WgetApp) parser() error {
 	// Ensure a URL or source file is provided for valid execution
 	if app.urlArgs.url == "" && !track {
 		return fmt.Errorf("error: URL not provided")
+	}
+
+	// Validate the url
+	err := wgetutils.ValidateURL(app.urlArgs.url)
+	if err != nil {
+		return fmt.Errorf("error: invalid url provided")
 	}
 
 	return nil
