@@ -18,6 +18,9 @@ func (app *WgetApp) parser() error {
 		} else if strings.HasPrefix(arg, "-P=") {
 			app.urlArgs.path = arg[len("-P="):]
 		} else if strings.HasPrefix(arg, "--rate-limit=") {
+			if err := wgetutils.RateLimitValidator(arg); err != nil {
+				return err
+			}
 			app.urlArgs.rateLimit = arg[len("--rate-limit="):]
 		} else if strings.HasPrefix(arg, "--mirror") {
 			app.urlArgs.mirroring = true
