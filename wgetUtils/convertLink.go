@@ -6,7 +6,31 @@ import (
 	"path"
 	"regexp"
 	"strings"
+
+	"golang.org/x/net/html"
 )
+
+// modifyLinks traverses an HTML node tree and modifies URLs in attributes like href, src, and style
+// to use local paths. It also converts URLs found within inline styles into local paths using convertCSSURLs.
+func modifyLinks(n *html.Node, basePath string) {
+	if n.Type == html.ElementNode {
+		for i, attr := range n.Attr {
+			if attr.Key == "href" || attr.Key == "src" {
+				n.Attr[i].Val = getLocalPath(attr.Val)
+			} else if attr.Key == "style" {
+				n.Attr[i].Val = convertCSSURLs(attr.Val)
+			}
+		}
+
+		if n.Data == "style" && n.FirstChild != nil && n.FirstChild.Type == html.TextNode {
+			n.FirstChild.Data = convertCSSURLs(n.FirstChild.Data)
+		}
+	}
+
+	for c := n.FirstChild; c != nil; c = c.NextSibling {
+		modifyLinks(c, basePath)
+	}
+}
 
 // convertCSSURLs replaces all URL references in a CSS file with local file system paths.
 // This ensures that external assets referenced in stylesheets are properly mapped for offline use.
