@@ -142,6 +142,7 @@ func (app *WgetApp) downloadAsset(fileURL, domain, rejectTypes string) {
 	}
 
 	fmt.Printf("Downloading: %s\n", fileURL)
+	app.asyncMirror("", fileURL, domain)
 }
 
 // fetchAndParsePage fetches the content of the URL and parses it as HTML
