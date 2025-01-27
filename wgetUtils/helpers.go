@@ -2,6 +2,7 @@ package wgetutils
 
 import (
 	"fmt"
+	"math"
 	"net/http"
 	"net/url"
 	"os"
@@ -172,4 +173,21 @@ func FileExists(path string) bool {
 		return false
 	}
 	return err == nil
+}
+
+// FormatSpeed formats a speed value into a human-readable format (GB, MB, or KiB).
+func FormatSpeed(speed float64) string {
+	if speed > 1000000000 {
+		resGB := speed / 1000000000
+		return fmt.Sprintf("~%.2fGB", roundToTwoDecimalPlaces(resGB))
+	} else if speed > 1000000 {
+		resMB := speed / 1000000
+		return fmt.Sprintf("~%.2fMB", roundToTwoDecimalPlaces(resMB))
+	}
+	return fmt.Sprintf("%.0fKiB", speed)
+}
+
+// roundToTwoDecimalPlaces rounds a floating-point number to two decimal places.
+func roundToTwoDecimalPlaces(value float64) float64 {
+	return math.Round(value*100) / 100
 }
