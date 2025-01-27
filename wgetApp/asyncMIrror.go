@@ -74,6 +74,10 @@ func (app *WgetApp) asyncMirror(outputFile, urls, direc string) error {
 		}
 	}
 
+	if wgetutils.FileExists(outputFile) {
+		return nil
+	}
+
 	var out *os.File
 	out, err = os.Create(outputFile)
 	if err != nil {
