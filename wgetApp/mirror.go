@@ -3,6 +3,7 @@ package wgetApp
 import (
 	"fmt"
 	"strings"
+	wgetutils "wget/wgetUtils"
 )
 
 // mirror handles the mirroring of a webpage, downloading
@@ -24,6 +25,11 @@ func (app *WgetApp) downloadAsset(fileURL, domain, rejectTypes string) {
 
 	if fileURL == "" || !strings.HasPrefix(fileURL, "http") {
 		fmt.Printf("Invalid URL: %s\n", fileURL)
+		return
+	}
+
+	if wgetutils.IsRejected(fileURL, rejectTypes) {
+		fmt.Printf("Skipping rejected file: %s\n", fileURL)
 		return
 	}
 
