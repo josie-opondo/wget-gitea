@@ -5,16 +5,119 @@ import (
 	"net/http"
 	"regexp"
 	"strings"
+	"sync"
 
 	wgetutils "wget/wgetUtils"
 
 	"golang.org/x/net/html"
 )
 
-// mirror handles the mirroring of a webpage, downloading
-// the page and recursively visits linked pages, downloading assets
-// as needed.
+// mirror fetches the content of a URL, processes it to extract links and assets,
+// and downloads them if they belong to the same domain. It supports handling of
+// inline styles and <style> tags, as well as recursive mirroring of linked pages.
+// It also handles URL conversion for offline viewing if the convertLink flag is true.
 func (app *WgetApp) mirror(url, rejectTypes, rejectPaths string, convertLink bool) error {
+	domain, err := wgetutils.ExtractDomain(url)
+	if err != nil {
+		return fmt.Errorf("could not extract domain name for:\n%serror: %v", url, err)
+	}
+
+	app.muPages.Lock()
+	if app.visitedPages[url] {
+		app.muPages.Unlock()
+		return nil
+	}
+	app.visitedPages[url] = true
+	app.muPages.Unlock()
+
+	// Check if we're at the root domain and force download of index.html
+	if (strings.TrimRight(url, "/") == "http://"+domain || strings.TrimRight(url, "/") == "https://"+domain) && app.count == 0 {
+		app.count++
+		indexURL := strings.TrimRight(url, "/")
+		app.downloadAsset(indexURL, domain, rejectTypes)
+	}
+
+	// Fetch and get the HTML of the page
+	doc, err := fetchAndParsePage(url)
+	if err != nil {
+		return fmt.Errorf("error fetching or parsing page:\n%v", err)
+	}
+
+	// Function to handle links and assets found on the page
+	handleLink := func(link, tagName string) {
+		app.semaphore <- struct{}{}
+		defer func() { <-app.semaphore }()
+
+		baseURL := wgetutils.ResolveURL(url, link)
+		if wgetutils.IsRejectedPath(baseURL, rejectPaths) {
+			fmt.Printf("Skipping Rejected file path: %s\n", baseURL)
+			return
+		}
+		baseURLDomain, err := wgetutils.ExtractDomain(baseURL)
+		if err != nil {
+			fmt.Println("Could not extract domain name for:", baseURLDomain, "\nError:", err)
+			return
+		}
+
+		if baseURLDomain == domain {
+			if tagName == "a" {
+				if strings.HasSuffix(baseURL, "/") || strings.HasSuffix(baseURL, "/index.html") {
+					// Ensure index.html is downloaded first
+					indexURL := strings.TrimRight(baseURL, "/") + "/index.html"
+					if !app.visitedPages[indexURL] {
+						app.downloadAsset(indexURL, domain, rejectTypes)
+						app.mirror(indexURL, rejectTypes, rejectPaths, convertLink)
+					}
+				} else {
+					app.mirror(baseURL, rejectTypes, rejectPaths, convertLink)
+				}
+			}
+			app.downloadAsset(baseURL, domain, rejectTypes)
+		}
+	}
+
+	var wg sync.WaitGroup
+	var processNode func(n *html.Node)
+
+	processNode = func(n *html.Node) {
+		if n.Type == html.ElementNode {
+			for _, attr := range n.Attr {
+				if wgetutils.IsValidAttribute(n.Data, attr.Key) {
+					link := attr.Val
+					if link != "" {
+						wg.Add(1)
+						go func(link, tagName string) {
+							defer wg.Done()
+							handleLink(link, tagName)
+						}(link, n.Data)
+					}
+				}
+				// Check for inline styles
+				if attr.Key == "style" {
+					app.extractAndHandleStyleURLs(attr.Val, url, domain, rejectTypes)
+				}
+			}
+			// Check for <style> tags
+			if n.Data == "style" && n.FirstChild != nil {
+				app.extractAndHandleStyleURLs(n.FirstChild.Data, url, domain, rejectTypes)
+			}
+		}
+
+		for c := n.FirstChild; c != nil; c = c.NextSibling {
+			processNode(c)
+		}
+	}
+
+	// Start processing the document
+	processNode(doc)
+
+	// Wait for all goroutines to complete
+	wg.Wait()
+
+	// Convert links if the flag is set
+	if convertLink {
+		wgetutils.ConvertLinks(url)
+	}
 	return nil
 }
 
