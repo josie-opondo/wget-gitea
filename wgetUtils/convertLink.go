@@ -1,11 +1,23 @@
 package wgetutils
 
 import (
+	"fmt"
 	"net/url"
 	"path"
 	"regexp"
 	"strings"
 )
+
+// convertCSSURLs replaces all URL references in a CSS file with local file system paths.
+// This ensures that external assets referenced in stylesheets are properly mapped for offline use.
+func convertCSSURLs(cssContent string) string {
+	re := regexp.MustCompile(`url\(([^)]+)\)`)
+	return re.ReplaceAllStringFunc(cssContent, func(match string) string {
+		url := strings.Trim(match[4:len(match)-1], "'\"")
+		localPath := getLocalPath(url)
+		return fmt.Sprintf("url('%s')", localPath)
+	})
+}
 
 // getLocalPath converts a given URL into a local file system path.
 // It handles absolute HTTP(S) URLs, protocol-relative URLs, and root-relative paths.
