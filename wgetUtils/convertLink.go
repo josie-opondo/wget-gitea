@@ -3,12 +3,57 @@ package wgetutils
 import (
 	"fmt"
 	"net/url"
+	"os"
 	"path"
 	"regexp"
 	"strings"
 
 	"golang.org/x/net/html"
 )
+
+// ConvertLinks converts external URLs in an HTML file to local paths for offline viewing.
+// It reads the HTML file, modifies the links using the modifyLinks function, and then saves the changes.
+func ConvertLinks(htmlFilePath string) {
+	htmlFilePath = removeHTTP(htmlFilePath)
+
+	if !strings.HasSuffix(htmlFilePath, ".html") {
+		return
+	}
+
+	// Read the HTML file content
+	htmlData, err := os.ReadFile(htmlFilePath)
+	if err != nil {
+		fmt.Println("Error reading HTML file:", err)
+		return
+	}
+
+	// Parse the HTML content
+	doc, err := html.Parse(strings.NewReader(string(htmlData)))
+	if err != nil {
+		fmt.Println("Error parsing HTML:", err)
+		return
+	}
+
+	// Modify the document by converting external links to local paths
+	modifyLinks(doc, path.Dir(htmlFilePath))
+
+	// Convert the modified HTML back to string
+	var modifiedHTML strings.Builder
+	err = html.Render(&modifiedHTML, doc)
+	if err != nil {
+		fmt.Println("Error rendering modified HTML:", err)
+		return
+	}
+
+	// Save the modified HTML back to the file
+	err = os.WriteFile(htmlFilePath, []byte(modifiedHTML.String()), 0o644)
+	if err != nil {
+		fmt.Println("Error writing modified HTML file:", err)
+		return
+	}
+
+	fmt.Printf("\nAll %s links converted for offline viewing.\n", htmlFilePath)
+}
 
 // modifyLinks traverses an HTML node tree and modifies URLs in attributes like href, src, and style
 // to use local paths. It also converts URLs found within inline styles into local paths using convertCSSURLs.
