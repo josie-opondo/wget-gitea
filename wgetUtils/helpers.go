@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"os"
+	"path/filepath"
 	"strings"
 )
 
@@ -73,7 +75,6 @@ func IsValidAttribute(tagName, attrKey string) bool {
 		(tagName == "a" && attrKey == "href") ||
 		(tagName == "script" && attrKey == "src") ||
 		(tagName == "img" && attrKey == "src")
-		
 }
 
 // ResolveURL resolves a relative URL to an absolute URL based on the given base URL.
@@ -139,4 +140,27 @@ func contains(str, substr string) bool {
 		}
 	}
 	return false
+}
+
+// ExpandPath expands shorthand notations to full paths
+func ExpandPath(path string) (string, error) {
+	// 1. Expand `~` to the home directory
+	if strings.HasPrefix(path, "~") {
+		homeDir, err := os.UserHomeDir()
+		if err != nil {
+			return "", fmt.Errorf("error finding home directory:\n %v", err)
+		}
+		path = strings.Replace(path, "~", homeDir, 1)
+	}
+
+	// 2. Expand environment variables like $HOME, $USER, etc.
+	path = os.ExpandEnv(path)
+
+	// 3. Convert relative paths (./ or ../) to absolute paths
+	absPath, err := filepath.Abs(path)
+	if err != nil {
+		return "", fmt.Errorf("error getting absolute path:\n %v", err)
+	}
+
+	return absPath, nil
 }
