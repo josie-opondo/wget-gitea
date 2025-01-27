@@ -17,6 +17,7 @@ func InitWget() (*WgetApp, error) {
 		// Initialize the singleton instance
 		state = newWgetState()
 		err = state.parser()
+		err = state.taskManager(err)
 	})
 
 	// Return any initialization errors (though none are expected here)
