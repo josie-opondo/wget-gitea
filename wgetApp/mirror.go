@@ -2,8 +2,12 @@ package wgetApp
 
 import (
 	"fmt"
+	"net/http"
 	"strings"
+
 	wgetutils "wget/wgetUtils"
+
+	"golang.org/x/net/html"
 )
 
 // mirror handles the mirroring of a webpage, downloading
@@ -34,4 +38,19 @@ func (app *WgetApp) downloadAsset(fileURL, domain, rejectTypes string) {
 	}
 
 	fmt.Printf("Downloading: %s\n", fileURL)
+}
+
+// fetchAndParsePage fetches the content of the URL and parses it as HTML
+func fetchAndParsePage(url string) (*html.Node, error) {
+	resp, err := wgetutils.HttpRequest(url)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("error: status %s", resp.Status)
+	}
+
+	return html.Parse(resp.Body)
 }
