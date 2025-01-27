@@ -75,3 +75,38 @@ func IsValidAttribute(tagName, attrKey string) bool {
 		(tagName == "img" && attrKey == "src")
 		
 }
+
+// ResolveURL resolves a relative URL to an absolute URL based on the given base URL.
+// It handles fragment identifiers, protocols, and relative paths (e.g., './', '/', etc.).
+func ResolveURL(base, rel string) string {
+	// Remove fragment identifiers (anything starting with #)
+	if fragmentIndex := strings.Index(rel, "#"); fragmentIndex != -1 {
+		rel = rel[:fragmentIndex]
+	}
+
+	if strings.HasPrefix(rel, "http") {
+		return rel
+	}
+
+	if strings.HasPrefix(rel, "//") {
+		protocol := "http:"
+		if strings.HasPrefix(base, "https") {
+			protocol = "https:"
+		}
+		return protocol + rel
+	}
+
+	if strings.HasPrefix(rel, "/") {
+		return strings.Join(strings.Split(base, "/")[:3], "/") + rel
+	}
+	if strings.HasPrefix(rel, "./") {
+		return strings.Join(strings.Split(base, "/")[:3], "/") + rel[1:]
+	}
+	if strings.HasPrefix(rel, "//") && strings.Contains(rel[2:], "/") {
+		baseParts := strings.Split(base, "/")
+		return baseParts[0] + "//" + baseParts[2] + rel[1:]
+	}
+
+	baseParts := strings.Split(base, "/")
+	return baseParts[0] + "//" + baseParts[2] + "/" + rel
+}
