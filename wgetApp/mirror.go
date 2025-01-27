@@ -3,6 +3,7 @@ package wgetApp
 import (
 	"fmt"
 	"net/http"
+	"regexp"
 	"strings"
 
 	wgetutils "wget/wgetUtils"
@@ -53,4 +54,18 @@ func fetchAndParsePage(url string) (*html.Node, error) {
 	}
 
 	return html.Parse(resp.Body)
+}
+
+// extractAndHandleStyleURLs processes the URLs found in a CSS style block.
+// It resolves relative URLs to absolute ones based on the base URL and downloads the assets,
+// checking against domain restrictions and rejected types.
+func (app *WgetApp) extractAndHandleStyleURLs(styleContent, baseURL, domain, rejectTypes string) {
+	re := regexp.MustCompile(`url\(['"]?([^'"()]+)['"]?\)`)
+	matches := re.FindAllStringSubmatch(styleContent, -1)
+	for _, match := range matches {
+		if len(match) > 1 {
+			assetURL := wgetutils.ResolveURL(baseURL, match[1])
+			app.downloadAsset(assetURL, domain, rejectTypes)
+		}
+	}
 }
