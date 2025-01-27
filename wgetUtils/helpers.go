@@ -111,6 +111,25 @@ func ResolveURL(base, rel string) string {
 	return baseParts[0] + "//" + baseParts[2] + "/" + rel
 }
 
+// IsRejectedPath checks if the given URL contains any path specified in the pathRejects string.
+func IsRejectedPath(url, pathRejects string) bool {
+	if pathRejects == "" {
+		return false
+	}
+
+	rejects := strings.Split(pathRejects, ",")
+	for _, path := range rejects {
+		if path[0] != '/' {
+			continue
+		}
+		if contains(url, path) {
+			return true
+		}
+	}
+
+	return false
+}
+
 // contains checks if a string contains a specified substring.
 // It performs a simple substring search by comparing slices of the string.
 func contains(str, substr string) bool {
