@@ -164,3 +164,12 @@ func ExpandPath(path string) (string, error) {
 
 	return absPath, nil
 }
+
+// FileExists checks if a file or directory exists at the given path.
+func FileExists(path string) bool {
+	_, err := os.Stat(path)
+	if os.IsNotExist(err) {
+		return false
+	}
+	return err == nil
+}
