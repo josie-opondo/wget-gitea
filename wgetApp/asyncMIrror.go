@@ -9,6 +9,8 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"time"
+
 	wgetutils "wget/wgetUtils"
 )
 
@@ -125,4 +127,36 @@ func (app *WgetApp) asyncMirror(outputFile, urls, direc string) error {
 	app.processedURLs.urls[urls] = true
 	app.processedURLs.Unlock()
 	return nil
+}
+
+// Update the ShowProgress function with the correct speed format
+func (app *WgetApp) progress(progress, total int64, startTime time.Time) {
+	const length = 50
+	if total <= 0 {
+		return
+	}
+	percent := float64(progress) / float64(total) * 100
+	numBars := int((percent / 100) * length)
+
+	// Calculate speed (bytes per second)
+	elapsed := time.Since(startTime).Seconds()
+	speed := float64(progress) / elapsed
+
+	// Calculate estimated time remaining
+	var eta string
+	if speed > 0 {
+		remaining := float64(total-progress) / speed
+		eta = fmt.Sprintf("%02d:%02d:%02d", int(remaining/3600), int(remaining/60)%60, int(remaining)%60)
+	} else {
+		eta = "--:--:--"
+	}
+
+	// Print the output with custom format
+	if !app.urlArgs.workInBackground {
+		out := fmt.Sprintf("%.2f KiB / %.2f KiB [%s%s] %.0f%% %s %s",
+			float64(progress)/1024, float64(total)/1024,
+			strings.Repeat("=", numBars), strings.Repeat(" ", length-numBars),
+			percent, wgetutils.FormatSpeed(speed/1024), eta)
+		fmt.Printf("\r%s", out)
+	}
 }
