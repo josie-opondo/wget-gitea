@@ -13,3 +13,12 @@ func ValidateURL(link string) error {
 	}
 	return nil
 }
+
+// ExtractDomain extracts the domain from a given URL string.
+func ExtractDomain(urls string) (string, error) {
+	u, err := url.Parse(urls)
+	if err != nil {
+		return "", err
+	}
+	return u.Hostname(), nil
+}
