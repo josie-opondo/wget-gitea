@@ -66,3 +66,12 @@ func HttpRequest(url string) (*http.Response, error) {
 
 	return resp, err
 }
+
+// isValidAttribute checks if an HTML tag attribute is valid for processing
+func IsValidAttribute(tagName, attrKey string) bool {
+	return (tagName == "link" && attrKey == "href") ||
+		(tagName == "a" && attrKey == "href") ||
+		(tagName == "script" && attrKey == "src") ||
+		(tagName == "img" && attrKey == "src")
+		
+}
