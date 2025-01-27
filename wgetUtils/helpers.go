@@ -110,3 +110,14 @@ func ResolveURL(base, rel string) string {
 	baseParts := strings.Split(base, "/")
 	return baseParts[0] + "//" + baseParts[2] + "/" + rel
 }
+
+// contains checks if a string contains a specified substring.
+// It performs a simple substring search by comparing slices of the string.
+func contains(str, substr string) bool {
+	for i := 0; i < len(str)-len(substr); i++ {
+		if str[i:i+len(substr)] == substr {
+			return true
+		}
+	}
+	return false
+}
