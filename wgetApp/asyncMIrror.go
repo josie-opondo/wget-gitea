@@ -88,10 +88,11 @@ func (app *WgetApp) asyncMirror(outputFile, urls, direc string) error {
 	defer out.Close()
 
 	var reader io.Reader = resp.Body
+	var size int64
 
 	// Get the content length for the progress (if available)
 	if length := resp.Header.Get("Content-Length"); length != "" {
-		_, err = strconv.ParseInt(length, 10, 64)
+		size, err = strconv.ParseInt(length, 10, 64)
 		if err != nil {
 			return fmt.Errorf("error parsing Content-Length:\n%v", err)
 		}
@@ -99,6 +100,7 @@ func (app *WgetApp) asyncMirror(outputFile, urls, direc string) error {
 
 	buffer := make([]byte, 32*1024) // 32 KB buffer size
 	var downloaded int64
+	start := time.Now()
 
 	// Download the file while showing progress
 	for {
@@ -112,7 +114,7 @@ func (app *WgetApp) asyncMirror(outputFile, urls, direc string) error {
 				return fmt.Errorf("error writing to file:\n%v", err)
 			}
 			downloaded += int64(n)
-
+			app.progress(downloaded, size, start)
 		}
 
 		if err == io.EOF {
