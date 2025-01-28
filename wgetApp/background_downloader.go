@@ -38,6 +38,7 @@ func (app *AppState) downloadInBackground(file, urlStr, rateLimit string) error{
 		if err := cmd.Wait(); err != nil {
 			return fmt.Errorf("error during download:\n%v", err)
 		}
+		return nil
 	}
 
 
