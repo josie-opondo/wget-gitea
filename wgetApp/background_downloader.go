@@ -24,6 +24,7 @@ func (app *AppState) downloadInBackground(file, urlStr, rateLimit string) error{
 	}
 	cmd := exec.Command(os.Args[0], "-O="+outputName, "-P="+path, "--rate-limit="+rateLimit, urlStr)
 	cmd.Stdout = logFile
+	cmd.Stderr = logFile
 
 
 
