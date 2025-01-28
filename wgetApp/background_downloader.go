@@ -10,5 +10,11 @@ func (app *AppState) downloadInBackground(file, urlStr, rateLimit string) error{
 	if file != "" {
 		outputName = file
 	}
-
+	path := "." // Default path to save the file
+	// Create the wget-log file to log output
+	logFile, err := os.OpenFile("wget-log", os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0o644)
+	if err != nil {
+		return fmt.Errorf("error creating log file:\n%v", err)
+	}
+	defer logFile.Close()
 }
