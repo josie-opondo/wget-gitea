@@ -34,7 +34,9 @@ func (app *AppState) downloadInBackground(file, urlStr, rateLimit string) error{
 	if err := utils.SaveShowProgressState(app.tempConfigFile, false); err != nil {
 		return err
 	}
-
+	go func() error {
+		
+	}
 
 
 }
