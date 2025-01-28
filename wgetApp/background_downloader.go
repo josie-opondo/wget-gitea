@@ -17,4 +17,15 @@ func (app *AppState) downloadInBackground(file, urlStr, rateLimit string) error{
 		return fmt.Errorf("error creating log file:\n%v", err)
 	}
 	defer logFile.Close()
+
+	// Ensure the output directory exists
+	if err := os.MkdirAll(path, os.ModePerm); err != nil {
+		return fmt.Errorf("error creating output directory:\n%v", err)
+	}
+
+
+
+
+
+	
 }
