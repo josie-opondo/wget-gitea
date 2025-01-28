@@ -2,9 +2,18 @@ package wgetutils
 
 import (
 	"fmt"
+	"io"
 	"strconv"
 	"strings"
+	"time"
 )
+
+type RateLimitedReader struct {
+	reader     io.Reader
+	rateLimit  int64 // bytes per second
+	bucket     int64
+	lastFilled time.Time
+}
 
 // RateLimitValidator validates the rate limit format for --rate-limit argument.
 func RateLimitValidator(s string) error {
@@ -28,3 +37,26 @@ func RateLimitValidator(s string) error {
 
 	return nil
 }
+
+func parseRateLimit(rateLimit string) (int64, error) {
+	if len(rateLimit) < 2 {
+		return 0, fmt.Errorf("invalid rate limit")
+	}
+
+	multiplier := 1
+	switch rateLimit[len(rateLimit)-1] {
+	case 'k', 'K':
+		multiplier = 1024
+		rateLimit = rateLimit[:len(rateLimit)-1]
+	case 'M':
+		multiplier = 1024 * 1024
+		rateLimit = rateLimit[:len(rateLimit)-1]
+	}
+
+	rate, err := strconv.Atoi(rateLimit)
+	if err != nil {
+		return 0, err
+	}
+	return int64(rate * multiplier), nil
+}
+
