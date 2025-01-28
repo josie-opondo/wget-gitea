@@ -7,6 +7,7 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 )
 
@@ -190,4 +191,30 @@ func FormatSpeed(speed float64) string {
 // roundToTwoDecimalPlaces rounds a floating-point number to two decimal places.
 func roundToTwoDecimalPlaces(value float64) float64 {
 	return math.Round(value*100) / 100
+}
+
+func LoadShowProgressState(tempConfigFile string) (bool, error) {
+	if _, err := os.Stat(tempConfigFile); os.IsNotExist(err) {
+		// File doesn't exist, return default true
+		return true, nil
+	}
+
+	data, err := os.ReadFile(tempConfigFile)
+	if err != nil {
+		return false, fmt.Errorf("error reading showProgress state: %v", err)
+	}
+
+	// Parse the boolean value
+	showProgress, err := strconv.ParseBool(string(data))
+	if err != nil {
+		return false, fmt.Errorf("error parsing showProgress state: %v", err)
+	}
+
+	// Delete the file after retrieving the state
+	err = os.Remove(tempConfigFile)
+	if err != nil {
+		return false, fmt.Errorf("error deleting temp file: %v", err)
+	}
+
+	return showProgress, nil
 }
