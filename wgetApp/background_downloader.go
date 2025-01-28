@@ -27,7 +27,10 @@ func (app *AppState) downloadInBackground(file, urlStr, rateLimit string) error{
 	cmd.Stderr = logFile
 	fmt.Println("Output will be written to \"wget-log\".")
 
-
+	// Start the command
+	if err := cmd.Start(); err != nil {
+		
+	}
 
 
 
