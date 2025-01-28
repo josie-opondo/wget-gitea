@@ -65,3 +65,21 @@ func NewRateLimitedReader(reader io.Reader, limit string) *RateLimitedReader {
 	rateLimit, _ := parseRateLimit(limit)
 	return &RateLimitedReader{reader: reader, rateLimit: rateLimit, lastFilled: time.Now()}
 }
+
+func (r *RateLimitedReader) Read(p []byte) (n int, err error) {
+	if r.bucket <= 0 {
+		time.Sleep(time.Second)
+		r.bucket = r.rateLimit
+		r.lastFilled = time.Now()
+	}
+
+	toRead := int64(len(p))
+	if toRead > r.bucket {
+		toRead = r.bucket
+	}
+
+	n, err = r.reader.Read(p[:toRead])
+	r.bucket -= int64(n)
+
+	return n, err
+}
