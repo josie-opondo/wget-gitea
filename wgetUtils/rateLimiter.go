@@ -60,3 +60,8 @@ func parseRateLimit(rateLimit string) (int64, error) {
 	return int64(rate * multiplier), nil
 }
 
+func NewRateLimitedReader(reader io.Reader, limit string) *RateLimitedReader {
+	// Convert limit to bytes per second (rateLimit)
+	rateLimit, _ := parseRateLimit(limit)
+	return &RateLimitedReader{reader: reader, rateLimit: rateLimit, lastFilled: time.Now()}
+}
