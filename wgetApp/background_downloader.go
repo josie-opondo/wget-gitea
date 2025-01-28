@@ -23,7 +23,7 @@ func (app *AppState) downloadInBackground(file, urlStr, rateLimit string) error{
 		return fmt.Errorf("error creating output directory:\n%v", err)
 	}
 	cmd := exec.Command(os.Args[0], "-O="+outputName, "-P="+path, "--rate-limit="+rateLimit, urlStr)
-
+	cmd.Stdout = logFile
 
 
 
