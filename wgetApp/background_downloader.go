@@ -29,7 +29,8 @@ func (app *AppState) downloadInBackground(file, urlStr, rateLimit string) error{
 
 	// Start the command
 	if err := cmd.Start(); err != nil {
-		
+		return fmt.Errorf("error starting download:\n%v", err)
+
 	}
 
 
