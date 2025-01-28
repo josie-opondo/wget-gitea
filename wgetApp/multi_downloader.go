@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
+	wgetutils "wget/wgetUtils"
 )
 
 
@@ -45,12 +46,12 @@ func (app *AppState) downloadMultipleFiles(filePath, outputFile, limit, director
 }
 
 func (app *AppState) AsyncDownload(outputFileName, url, limit, directory string) error {
-	path, err := utils.ExpandPath(directory)
+	path, err := wgetutils.ExpandPath(directory)
 	if err != nil {
 		return err
 	}
 
-	resp, err := utils.HttpRequest(url)
+	resp, err := wgetutils.HttpRequest(url)
 	if err != nil {
 		return err
 	}
@@ -83,7 +84,7 @@ func (app *AppState) AsyncDownload(outputFileName, url, limit, directory string)
 
 	var reader io.Reader = resp.Body
 	if limit != "" {
-		reader = utils.NewRateLimitedReader(resp.Body, limit)
+		reader = wgetutils.NewRateLimitedReader(resp.Body, limit)
 	}
 
 	buffer := make([]byte, 32*1024)
