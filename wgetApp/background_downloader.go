@@ -1,6 +1,14 @@
 package appstate
 
-func (app *AppState) downloadInBackground(file, urlStr, rateLimit string) error{
+import (
+	"fmt"
+	"net/url"
+	"os"
+	"os/exec"
+	"path/filepath"
+)
+
+func (app *AppState) downloadInBackground(file, urlStr, rateLimit string) error {
 	// Parse the URL to derive the output name
 	parsedURL, err := url.Parse(urlStr)
 	if err != nil {
@@ -31,15 +39,15 @@ func (app *AppState) downloadInBackground(file, urlStr, rateLimit string) error{
 	if err := cmd.Start(); err != nil {
 		return fmt.Errorf("error starting download:\n%v", err)
 	}
-	if err := utils.SaveShowProgressState(app.tempConfigFile, false); err != nil {
-		return err
-	}
+	// if err := utils.SaveShowProgressState(app.tempConfigFile, false); err != nil {
+	// 	return err
+	// }
 	go func() error {
 		if err := cmd.Wait(); err != nil {
 			return fmt.Errorf("error during download:\n%v", err)
 		}
 		return nil
 	}()
-		
+
 	return nil
 }
