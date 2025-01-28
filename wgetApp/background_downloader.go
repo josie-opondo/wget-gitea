@@ -32,7 +32,7 @@ func (app *AppState) downloadInBackground(file, urlStr, rateLimit string) error{
 		return fmt.Errorf("error starting download:\n%v", err)
 	}
 	if err := utils.SaveShowProgressState(app.tempConfigFile, false); err != nil {
-		// return err
+		return err
 	}
 
 
