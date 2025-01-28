@@ -22,10 +22,11 @@ func (app *AppState) downloadInBackground(file, urlStr, rateLimit string) error{
 	if err := os.MkdirAll(path, os.ModePerm); err != nil {
 		return fmt.Errorf("error creating output directory:\n%v", err)
 	}
+	cmd := exec.Command(os.Args[0], "-O="+outputName, "-P="+path, "--rate-limit="+rateLimit, urlStr)
 
 
 
 
 
-	
+
 }
