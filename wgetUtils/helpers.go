@@ -193,6 +193,7 @@ func roundToTwoDecimalPlaces(value float64) float64 {
 	return math.Round(value*100) / 100
 }
 
+// LoadShowProgressState reads the showProgress state from a temporary file.
 func LoadShowProgressState(tempConfigFile string) (bool, error) {
 	if _, err := os.Stat(tempConfigFile); os.IsNotExist(err) {
 		// File doesn't exist, return default true
@@ -217,4 +218,14 @@ func LoadShowProgressState(tempConfigFile string) (bool, error) {
 	}
 
 	return showProgress, nil
+}
+
+// SaveProgressState saves the showProgress state to a temporary file.
+func SaveProgressState(tempConfigFile string, showProgress bool) error {
+	data := []byte(strconv.FormatBool(showProgress))
+	err := os.WriteFile(tempConfigFile, data, 0o644)
+	if err != nil {
+		return fmt.Errorf("error saving showProgress state: %v", err)
+	}
+	return nil
 }
