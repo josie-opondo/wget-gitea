@@ -1,5 +1,7 @@
 package wgetApp
 
+import "strings"
+
 func (app *WgetApp) taskManager(err error) error {
 	if err != nil {
 		return err
@@ -12,6 +14,12 @@ func (app *WgetApp) taskManager(err error) error {
 			return err
 		}
 		return nil
+	}
+
+	// If no file name is provided, derive it from the url
+	if app.urlArgs.file == "" && app.urlArgs.url != "" {
+		urlParts := strings.Split(app.urlArgs.url, "/")
+		app.urlArgs.file = urlParts[len(urlParts)-1]
 	}
 
 	return nil
