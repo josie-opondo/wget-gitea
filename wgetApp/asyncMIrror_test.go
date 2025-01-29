@@ -51,5 +51,9 @@ func TestWgetApp_asyncMirror(t *testing.T) {
 		t.Errorf("File content mismatch: expected %q, got %q", testContent, string(data))
 	}
 
-	
+	// Step 7: Ensure duplicate URL is handled correctly
+	err = app.asyncMirror("", server.URL+testURL, tempDir)
+	if err == nil {
+		t.Errorf("Expected error for duplicate URL, but got nil")
+	}
 }
