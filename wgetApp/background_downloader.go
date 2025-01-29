@@ -1,4 +1,4 @@
-package appstate
+package wgetApp
 
 import (
 	"fmt"
@@ -7,8 +7,8 @@ import (
 	"os/exec"
 	"path/filepath"
 )
-
-func (app *AppState) downloadInBackground(file, urlStr, rateLimit string) error {
+// downloadInBackground downloads a file in the background while logging output to "wget-log".
+func (app *WgetApp) downloadInBackground(file, urlStr, rateLimit string) error {
 	// Parse the URL to derive the output name
 	parsedURL, err := url.Parse(urlStr)
 	if err != nil {
