@@ -35,10 +35,10 @@ func TestDownloadAsset(t *testing.T) {
 		}
 	})
 
-// 	t.Run("Invalid Asset", func(t *testing.T) {
-// 		app.downloadAsset("", "example.com", "")
-// 		if _, exists := app.visitedAssets[" "]; exists {
-// 			t.Errorf("Expected asset to be ignored")
-// 		}
-// 	})
-// }
+	t.Run("Invalid Asset", func(t *testing.T) {
+		app.downloadAsset("", "example.com", "")
+		if _, exists := app.visitedAssets[" "]; exists {
+			t.Errorf("Expected asset to be ignored")
+		}
+	})
+}
