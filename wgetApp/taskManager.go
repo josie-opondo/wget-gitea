@@ -39,5 +39,11 @@ func (app *WgetApp) taskManager(err error) error {
 		return fmt.Errorf("error: url not provided")
 	}
 
+	// Start downloading the file
+	err = app.singleDownloader(app.urlArgs.file, app.urlArgs.url, app.urlArgs.rateLimit, app.urlArgs.path)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
