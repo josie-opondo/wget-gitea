@@ -3,6 +3,8 @@ package wgetApp
 import (
 	"net/http"
 	"net/http/httptest"
+	"os"
+	"path/filepath"
 	"testing"
 )
 
@@ -27,4 +29,12 @@ func TestWgetApp_asyncMirror(t *testing.T) {
 		visitedAssets: make(map[string]bool),
 		processedURLs: ProcessedURLs{urls: make(map[string]bool)}, // No pointer here!
 	}
+
+	// Step 4: Run asyncMirror
+	err := app.asyncMirror("", server.URL+testURL, tempDir)
+	if err != nil {
+		t.Fatalf("asyncMirror failed: %v", err)
+	}
+
+	
 }
