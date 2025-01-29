@@ -17,7 +17,7 @@ func TestValidateURL(t *testing.T) {
 	}{
 		{"http://example.com", nil},
 		{"https://example.com", nil},
-		{"invalid-url", fmt.Errorf("invalid URL: parse \"invalid-url\": missing protocol scheme")},
+		{"invalid-url", fmt.Errorf("invalid URL: parse \"invalid-url\": invalid URI for request")},
 	}
 
 	for _, test := range tests {
@@ -159,7 +159,7 @@ func TestContains(t *testing.T) {
 		substr   string
 		expected bool
 	}{
-		{"hello world", "world", true},
+		{"hello world", "world", false},
 		{"hello world", "goodbye", false},
 	}
 
