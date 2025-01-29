@@ -24,16 +24,16 @@ func TestMirror(t *testing.T) {
 	})
 }
 
-// func TestDownloadAsset(t *testing.T) {
-// 	app := newWgetState()
-// 	app.muAssets = sync.Mutex{}
+func TestDownloadAsset(t *testing.T) {
+	app := newWgetState()
+	app.muAssets = sync.Mutex{}
 
-// 	t.Run("Valid Asset", func(t *testing.T) {
-// 		app.downloadAsset("http://example.com/image.jpg", "example.com", "")
-// 		if !app.visitedAssets["http://example.com/image.jpg"] {
-// 			t.Errorf("Expected asset to be visited")
-// 		}
-// 	})
+	t.Run("Valid Asset", func(t *testing.T) {
+		app.downloadAsset("http://example.com/image.jpg", "example.com", "")
+		if !app.visitedAssets["http://example.com/image.jpg"] {
+			t.Errorf("Expected asset to be visited")
+		}
+	})
 
 // 	t.Run("Invalid Asset", func(t *testing.T) {
 // 		app.downloadAsset("", "example.com", "")
