@@ -42,5 +42,14 @@ func TestWgetApp_asyncMirror(t *testing.T) {
 		t.Fatalf("Expected file %s not created", expectedFilePath)
 	}
 
+	// Step 6: Read and verify file contents
+	data, err := os.ReadFile(expectedFilePath)
+	if err != nil {
+		t.Fatalf("Failed to read file: %v", err)
+	}
+	if string(data) != testContent {
+		t.Errorf("File content mismatch: expected %q, got %q", testContent, string(data))
+	}
+
 	
 }
