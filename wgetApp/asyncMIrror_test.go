@@ -15,5 +15,12 @@ func TestWgetApp_asyncMirror(t *testing.T) {
 	testURL := "/test/" + testFileName
 	testContent := "This is a test file content."
 
+	// Step 2: Start a mock HTTP server
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(testContent))
+	}))
+	defer server.Close()
+
 	
 }
