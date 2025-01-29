@@ -1,6 +1,9 @@
 package wgetApp
 
-import "strings"
+import (
+	"fmt"
+	"strings"
+)
 
 func (app *WgetApp) taskManager(err error) error {
 	if err != nil {
@@ -29,6 +32,11 @@ func (app *WgetApp) taskManager(err error) error {
 			return err
 		}
 		return nil
+	}
+
+	// Ensure url is provided
+	if app.urlArgs.url == "" {
+		return fmt.Errorf("error: url not provided")
 	}
 
 	return nil
