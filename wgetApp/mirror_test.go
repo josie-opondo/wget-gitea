@@ -16,13 +16,13 @@ func TestMirror(t *testing.T) {
 		}
 	})
 
-// 	t.Run("Invalid URL", func(t *testing.T) {
-// 		err := app.mirror("invalid_url", "", "", true)
-// 		if err == nil {
-// 			t.Errorf("Expected error, got nil")
-// 		}
-// 	})
-// }
+	t.Run("Invalid URL", func(t *testing.T) {
+		err := app.mirror("invalid_url", "", "", true)
+		if err == nil {
+			t.Errorf("Expected error, got nil")
+		}
+	})
+}
 
 // func TestDownloadAsset(t *testing.T) {
 // 	app := newWgetState()
