@@ -218,3 +218,13 @@ func LoadShowProgressState(tempConfigFile string) (bool, error) {
 
 	return showProgress, nil
 }
+
+// SaveProgressState saves the showProgress state to a temporary file.
+func SaveProgressState(tempConfigFile string, showProgress bool) error {
+	data := []byte(strconv.FormatBool(showProgress))
+	err := os.WriteFile(tempConfigFile, data, 0o644)
+	if err != nil {
+		return fmt.Errorf("error saving showProgress state: %v", err)
+	}
+	return nil
+}
