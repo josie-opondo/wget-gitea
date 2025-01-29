@@ -36,5 +36,11 @@ func TestWgetApp_asyncMirror(t *testing.T) {
 		t.Fatalf("asyncMirror failed: %v", err)
 	}
 
+	// Step 5: Verify the file exists
+	expectedFilePath := filepath.Join(tempDir, "test", testFileName)
+	if _, err := os.Stat(expectedFilePath); os.IsNotExist(err) {
+		t.Fatalf("Expected file %s not created", expectedFilePath)
+	}
+
 	
 }
