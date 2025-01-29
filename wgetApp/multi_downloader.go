@@ -1,10 +1,21 @@
 package wgetApp
 
+import (
+	"bufio"
+	"fmt"
+	"io"
+	"net/http"
+	"os"
+	"path/filepath"
+	"strings"
+	"sync"
+
+	wgetutils "wget/wgetUtils"
+)
 
 /*
-
-downloadMultipleFiles 
-*parameters* 
+downloadMultipleFiles
+*parameters*
 - filePath: The path to the file containing URLs (one per line).
 - outputFile: The output file where downloaded content is stored.
 - limit: A concurrency limit for the number of simultaneous downloads.
@@ -17,7 +28,7 @@ downloadMultipleFiles
 -  Calls AsyncDownload to handle each URL download asynchronously.
 - Waits for all goroutines to complete before returning.
 */
-func (app *wgetApp) downloadMultipleFiles(filePath, outputFile, limit, directory string) error {
+func (app *WgetApp) downloadMultipleFiles(filePath, outputFile, limit, directory string) error {
 	file, err := os.Open(filePath)
 	if err != nil {
 		return fmt.Errorf("error opening file:\n%v", err)
@@ -47,10 +58,9 @@ func (app *wgetApp) downloadMultipleFiles(filePath, outputFile, limit, directory
 	return nil
 }
 
-
 /*
-asyncDownload 
-*parameters* 
+asyncDownload
+*parameters*
 - outputFileName: The name of the file where the downloaded content will be saved. If empty, the filename is derived from the URL.
 - url: The URL of the file to be downloaded.
 - limit: The download speed limit (if applicable).
@@ -66,7 +76,7 @@ asyncDownload
 - Reads the response body in chunks and writes to the file, applying a rate limit if specified.
 - Displays download progress and prints a success message upon completion.
 */
-func (app *AppState) asyncDownload(outputFileName, url, limit, directory string) error {
+func (app *WgetApp) asyncDownload(outputFileName, url, limit, directory string) error {
 	path, err := wgetutils.ExpandPath(directory)
 	if err != nil {
 		return err
@@ -134,5 +144,3 @@ func (app *AppState) asyncDownload(outputFileName, url, limit, directory string)
 
 	return nil
 }
-
-
