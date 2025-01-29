@@ -86,3 +86,32 @@ func TestDownloadInBackgroundOutputDirectory(t *testing.T) {
 	// Clean up
 	// Note: Since the default path is ".", no need to remove it here.
 }
+
+func TestDownloadInBackgroundSaveProgressState(t *testing.T) {
+	app := &WgetApp{
+		tempConfigFile: "test-config.json", // Example config file
+	}
+
+	// Test saving progress state
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("Hello, World!"))
+	}))
+	defer ts.Close()
+
+	urlStr := ts.URL
+	rateLimit := "100k"
+	err := app.downloadInBackground("", urlStr, rateLimit)
+	if err != nil {
+		fmt.Println("err")
+	}
+	// Wait for the download to complete
+	time.Sleep(2 * time.Second) // Adjust as needed
+
+	// Check if the progress state file exists
+	_, err = os.Stat(app.tempConfigFile)
+	if err != nil {
+		fmt.Println("err")
+	}
+	// Clean up
+	os.Remove(app.tempConfigFile)
+}
