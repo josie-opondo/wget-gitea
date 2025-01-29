@@ -34,6 +34,15 @@ func (app *WgetApp) taskManager(err error) error {
 		return nil
 	}
 
+	// Handle multiple file downloads from sourceFile
+	if app.urlArgs.sourceFile != "" {
+		err := app.downloadMultipleFiles(app.urlArgs.sourceFile, app.urlArgs.file, app.urlArgs.rateLimit, app.urlArgs.path)
+		if err != nil {
+			return err
+		}
+		return nil
+	}
+
 	// Ensure url is provided
 	if app.urlArgs.url == "" {
 		return fmt.Errorf("error: url not provided")
