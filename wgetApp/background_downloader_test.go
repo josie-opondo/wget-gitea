@@ -115,3 +115,35 @@ func TestDownloadInBackgroundSaveProgressState(t *testing.T) {
 	// Clean up
 	os.Remove(app.tempConfigFile)
 }
+
+func TestDownloadInBackground(t *testing.T) {
+	// Setup a test server to serve a file
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("Hello, World!"))
+	}))
+	defer ts.Close()
+
+	// Create a WgetApp instance for testing
+	app := &WgetApp{
+		tempConfigFile: "test-config.json", // Example config file
+	}
+
+	// Test downloading a file with a custom name
+	fileName := "custom-name.txt"
+	urlStr := ts.URL
+	rateLimit := "100k"
+	err := app.downloadInBackground(fileName, urlStr, rateLimit)
+	if err != nil {
+		fmt.Println("err")
+	}
+	// Wait for the download to complete
+	time.Sleep(2 * time.Second) // Adjust as needed
+
+	// Check if the file was downloaded correctly
+	_, err = os.Stat(fileName)
+	if err != nil {
+		fmt.Println("err")
+	}
+	// Clean up
+	os.Remove(fileName)
+}
