@@ -6,7 +6,9 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	wgetutils "wget/wgetUtils"
 )
+
 // downloadInBackground downloads a file in the background while logging output to "wget-log".
 func (app *WgetApp) downloadInBackground(file, urlStr, rateLimit string) error {
 	// Parse the URL to derive the output name
@@ -39,9 +41,11 @@ func (app *WgetApp) downloadInBackground(file, urlStr, rateLimit string) error {
 	if err := cmd.Start(); err != nil {
 		return fmt.Errorf("error starting download:\n%v", err)
 	}
-	// if err := utils.SaveShowProgressState(app.tempConfigFile, false); err != nil {
-	// 	return err
-	// }
+
+	if err := wgetutils.SaveProgressState(app.tempConfigFile, false); err != nil {
+		return err
+	}
+
 	go func() error {
 		if err := cmd.Wait(); err != nil {
 			return fmt.Errorf("error during download:\n%v", err)
