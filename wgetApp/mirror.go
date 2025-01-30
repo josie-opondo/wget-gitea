@@ -17,11 +17,6 @@ import (
 // inline styles and <style> tags, as well as recursive mirroring of linked pages.
 // It also handles URL conversion for offline viewing if the convertLink flag is true.
 func (app *WgetApp) mirror(url, rejectTypes, rejectPaths string, convertLink bool) error {
-	domain, err := wgetutils.ExtractDomain(url)
-	if err != nil {
-		return fmt.Errorf("could not extract domain name for:\n%serror: %v", url, err)
-	}
-
 	app.muPages.Lock()
 	if app.visitedPages[url] {
 		app.muPages.Unlock()
@@ -29,6 +24,11 @@ func (app *WgetApp) mirror(url, rejectTypes, rejectPaths string, convertLink boo
 	}
 	app.visitedPages[url] = true
 	app.muPages.Unlock()
+	
+	domain, err := wgetutils.ExtractDomain(url)
+	if err != nil {
+		return fmt.Errorf("could not extract domain name for:\n%serror: %v", url, err)
+	}
 
 	// Check if we're at the root domain and force download of index.html
 	if (strings.TrimRight(url, "/") == "http://"+domain || strings.TrimRight(url, "/") == "https://"+domain) && app.count == 0 {
