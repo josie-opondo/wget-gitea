@@ -193,7 +193,7 @@ func TestExpandPath(t *testing.T) {
 
 	// Test expanding environment variables
 	os.Setenv("TEST_VAR", "test_value")
-	expanded, err = ExpandPath("$TEST_VAR")
+	_, err = ExpandPath("$TEST_VAR")
 	if err != nil {
 		t.Errorf("Expected no error for expanding $TEST_VAR, but got %v", err)
 	}
@@ -202,7 +202,7 @@ func TestExpandPath(t *testing.T) {
 	// }
 
 	// Test expanding relative paths
-	expanded, err = ExpandPath("./test.txt")
+	_, err = ExpandPath("./test.txt")
 	if err != nil {
 		t.Errorf("Expected no error for expanding ./test.txt, but got %v", err)
 	}
@@ -325,5 +325,4 @@ func TestSaveProgressState(t *testing.T) {
 		t.Errorf("Expected temp file %s to exist after saving state", tempConfigFile)
 	}
 	// data, err := ioutil.ReadFile(tempConfigFile)
-
 }
