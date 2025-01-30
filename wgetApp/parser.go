@@ -60,14 +60,6 @@ func (app *WgetApp) parser() error {
 		}
 	}
 
-	// Validate rate limit format (must end with 'k' or 'm')
-	if app.urlArgs.rateLimit != "" {
-		lastChar := strings.ToLower(string(app.urlArgs.rateLimit[len(app.urlArgs.rateLimit)-1]))
-		if lastChar != "k" && lastChar != "m" {
-			return fmt.Errorf("invalid rateLimit")
-		}
-	}
-
 	// Validate background mode restrictions
 	if app.urlArgs.workInBackground {
 		if app.urlArgs.sourceFile != "" || app.urlArgs.path != "" {
