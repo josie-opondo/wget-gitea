@@ -43,6 +43,8 @@ func newWgetState() *WgetApp {
 		processedURLs: ProcessedURLs{
 			urls: make(map[string]bool),
 		},
+		semaphore: make(chan struct{}),
+		count: 0,
 		tempConfigFile: "progress_config.txt",
 	}
 }
