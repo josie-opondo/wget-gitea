@@ -87,7 +87,7 @@ func (app *WgetApp) parser() error {
 
 	// Validate the url
 	err := wgetutils.ValidateURL(app.urlArgs.url)
-	if err != nil {
+	if err != nil && app.urlArgs.sourceFile == "" {
 		return fmt.Errorf("error: invalid url provided")
 	}
 
