@@ -10,7 +10,7 @@ import (
 )
 
 // downloadInBackground downloads a file in the background while logging output to "wget-log".
-func (app *WgetApp) downloadInBackground(file, urlStr, rateLimit string) error {
+func (app *WgetApp) downloadInBackground(file, urlStr string) error {
 	// Parse the URL to derive the output name
 	parsedURL, err := url.Parse(urlStr)
 	if err != nil {
@@ -32,7 +32,7 @@ func (app *WgetApp) downloadInBackground(file, urlStr, rateLimit string) error {
 	if err := os.MkdirAll(path, os.ModePerm); err != nil {
 		return fmt.Errorf("error creating output directory:\n%v", err)
 	}
-	cmd := exec.Command(os.Args[0], "-O="+outputName, "-P="+path, "--rate-limit="+rateLimit, urlStr)
+	cmd := exec.Command(os.Args[0], "-O="+outputName, "-P="+path, urlStr)
 	cmd.Stdout = logFile
 	cmd.Stderr = logFile
 	fmt.Println("Output will be written to \"wget-log\".")

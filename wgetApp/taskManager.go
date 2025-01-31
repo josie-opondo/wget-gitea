@@ -27,7 +27,7 @@ func (app *WgetApp) taskManager(err error) error {
 
 	// Handle the work-in-background flag
 	if app.urlArgs.workInBackground {
-		err := app.downloadInBackground(app.urlArgs.file, app.urlArgs.url, app.urlArgs.rateLimit)
+		err := app.downloadInBackground(app.urlArgs.file, app.urlArgs.url)
 		if err != nil {
 			return err
 		}

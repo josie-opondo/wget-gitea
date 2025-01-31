@@ -17,8 +17,7 @@ func TestDownloadInBackgroundInvalidURL(t *testing.T) {
 	// Test with an invalid URL
 	fileName := ""
 	urlStr := "invalid-url"
-	rateLimit := "100k"
-	err := app.downloadInBackground(fileName, urlStr, rateLimit)
+	err := app.downloadInBackground(fileName, urlStr)
 	if err != nil {
 		fmt.Println("err")
 	}
@@ -37,8 +36,7 @@ func TestDownloadInBackgroundLogCreation(t *testing.T) {
 	defer ts.Close()
 
 	urlStr := ts.URL
-	rateLimit := "100k"
-	err := app.downloadInBackground("", urlStr, rateLimit)
+	err := app.downloadInBackground("", urlStr)
 	if err != nil {
 		fmt.Println("err")
 	}
@@ -68,8 +66,7 @@ func TestDownloadInBackgroundOutputDirectory(t *testing.T) {
 
 	// outputDir := "output-dir"
 	urlStr := ts.URL
-	rateLimit := "100k"
-	err := app.downloadInBackground("", urlStr, rateLimit)
+	err := app.downloadInBackground("", urlStr)
 	if err != nil {
 		fmt.Println("err")
 	}
@@ -99,8 +96,7 @@ func TestDownloadInBackgroundSaveProgressState(t *testing.T) {
 	defer ts.Close()
 
 	urlStr := ts.URL
-	rateLimit := "100k"
-	err := app.downloadInBackground("", urlStr, rateLimit)
+	err := app.downloadInBackground("", urlStr)
 	if err != nil {
 		fmt.Println("err")
 	}
@@ -131,8 +127,7 @@ func TestDownloadInBackground(t *testing.T) {
 	// Test downloading a file with a custom name
 	fileName := "custom-name.txt"
 	urlStr := ts.URL
-	rateLimit := "100k"
-	err := app.downloadInBackground(fileName, urlStr, rateLimit)
+	err := app.downloadInBackground(fileName, urlStr)
 	if err != nil {
 		fmt.Println("err")
 	}
