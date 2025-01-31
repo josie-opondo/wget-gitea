@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 	"strings"
-	"sync"
 )
 
 /*
@@ -30,7 +29,6 @@ func (app *WgetApp) downloadMultipleFiles(filePath, outputFile, limit, directory
 	}
 	defer file.Close()
 
-	var wg sync.WaitGroup
 	scanner := bufio.NewScanner(file)
 
 	for scanner.Scan() {
@@ -39,17 +37,13 @@ func (app *WgetApp) downloadMultipleFiles(filePath, outputFile, limit, directory
 		if url == "" {
 			continue // Skip empty lines
 		}
-		wg.Add(1)
-		go func(url string) error {
-			defer wg.Done()
-			err := app.singleDownloader(outputFile, url, limit, directory)
-			if err != nil {
-				return err
-			}
-			return nil
-		}(url)
+
+		// Process each URL synchronously (one after the other)
+		err := app.singleDownloader(outputFile, url, limit, directory)
+		if err != nil {
+			return err
+		}
 	}
-	wg.Wait()
 
 	return nil
 }
