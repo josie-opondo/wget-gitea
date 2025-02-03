@@ -24,7 +24,7 @@ func (app *WgetApp) mirror(url, rejectTypes, rejectPaths string, convertLink boo
 	}
 	app.visitedPages[url] = true
 	app.muPages.Unlock()
-	
+
 	domain, err := wgetutils.ExtractDomain(url)
 	if err != nil {
 		return fmt.Errorf("could not extract domain name for:\n%serror: %v", url, err)
@@ -43,43 +43,8 @@ func (app *WgetApp) mirror(url, rejectTypes, rejectPaths string, convertLink boo
 		return fmt.Errorf("error fetching or parsing page:\n%v", err)
 	}
 
-	var wg sync.WaitGroup
-	var processNode func(n *html.Node)
-
-	processNode = func(n *html.Node) {
-		if n.Type == html.ElementNode {
-			for _, attr := range n.Attr {
-				if wgetutils.IsValidAttribute(n.Data, attr.Key) {
-					link := attr.Val
-					if link != "" {
-						wg.Add(1)
-						go func(link, tagName string) {
-							defer wg.Done()
-							app.handleLink(url, rejectPaths, link, tagName, domain, rejectTypes, convertLink)
-						}(link, n.Data)
-					}
-				}
-				// Check for inline styles
-				if attr.Key == "style" {
-					app.extractAndHandleStyleURLs(attr.Val, url, domain, rejectTypes)
-				}
-			}
-			// Check for <style> tags
-			if n.Data == "style" && n.FirstChild != nil {
-				app.extractAndHandleStyleURLs(n.FirstChild.Data, url, domain, rejectTypes)
-			}
-		}
-
-		for c := n.FirstChild; c != nil; c = c.NextSibling {
-			processNode(c)
-		}
-	}
-
 	// Start processing the document
-	processNode(doc)
-
-	// Wait for all goroutines to complete
-	wg.Wait()
+	app.processNode(url, rejectPaths, domain, rejectTypes, convertLink, doc)
 
 	// Convert links if the flag is set
 	if convertLink {
@@ -88,10 +53,46 @@ func (app *WgetApp) mirror(url, rejectTypes, rejectPaths string, convertLink boo
 	return nil
 }
 
+// processNode
+func (app *WgetApp) processNode(url, rejectPaths, domain, rejectTypes string, convertLink bool, n *html.Node) {
+	var wg sync.WaitGroup
+
+	if n.Type == html.ElementNode {
+		for _, attr := range n.Attr {
+			if wgetutils.IsValidAttribute(n.Data, attr.Key) {
+				link := attr.Val
+				if link != "" {
+					wg.Add(1)
+					go func(link, tagName string) {
+						defer wg.Done()
+						app.handleLink(url, rejectPaths, link, tagName, domain, rejectTypes, convertLink)
+						// <-app.semaphore
+					}(link, n.Data)
+				}
+			}
+			// Check for inline styles
+			if attr.Key == "style" {
+				app.extractAndHandleStyleURLs(attr.Val, url, domain, rejectTypes)
+			}
+		}
+		// Check for <style> tags
+		if n.Data == "style" && n.FirstChild != nil {
+			app.extractAndHandleStyleURLs(n.FirstChild.Data, url, domain, rejectTypes)
+		}
+	}
+
+	// Wait for all goroutines to complete
+	wg.Wait()
+
+	for c := n.FirstChild; c != nil; c = c.NextSibling {
+		app.processNode(url, rejectPaths, domain, rejectTypes, convertLink, c)
+	}
+}
+
 // Function to handle links and assets found on the page
-func(app *WgetApp) handleLink(url, rejectPaths, link, tagName, domain, rejectTypes string, convertLink bool) {
-	app.semaphore <- struct{}{}
-	defer func() { <-app.semaphore }()
+func (app *WgetApp) handleLink(url, rejectPaths, link, tagName, domain, rejectTypes string, convertLink bool) {
+	// app.semaphore <- struct{}{}
+	// defer func() { <-app.semaphore }()
 
 	baseURL := wgetutils.ResolveURL(url, link)
 	if wgetutils.IsRejectedPath(baseURL, rejectPaths) {
