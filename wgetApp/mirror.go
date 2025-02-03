@@ -43,39 +43,6 @@ func (app *WgetApp) mirror(url, rejectTypes, rejectPaths string, convertLink boo
 		return fmt.Errorf("error fetching or parsing page:\n%v", err)
 	}
 
-	// Function to handle links and assets found on the page
-	handleLink := func(link, tagName string) {
-		app.semaphore <- struct{}{}
-		defer func() { <-app.semaphore }()
-
-		baseURL := wgetutils.ResolveURL(url, link)
-		if wgetutils.IsRejectedPath(baseURL, rejectPaths) {
-			fmt.Printf("Skipping Rejected file path: %s\n", baseURL)
-			return
-		}
-		baseURLDomain, err := wgetutils.ExtractDomain(baseURL)
-		if err != nil {
-			fmt.Println("Could not extract domain name for:", baseURLDomain, "\nError:", err)
-			return
-		}
-
-		if baseURLDomain == domain {
-			if tagName == "a" {
-				if strings.HasSuffix(baseURL, "/") || strings.HasSuffix(baseURL, "/index.html") {
-					// Ensure index.html is downloaded first
-					indexURL := strings.TrimRight(baseURL, "/") + "/index.html"
-					if !app.visitedPages[indexURL] {
-						app.downloadAsset(indexURL, domain, rejectTypes)
-						app.mirror(indexURL, rejectTypes, rejectPaths, convertLink)
-					}
-				} else {
-					app.mirror(baseURL, rejectTypes, rejectPaths, convertLink)
-				}
-			}
-			app.downloadAsset(baseURL, domain, rejectTypes)
-		}
-	}
-
 	var wg sync.WaitGroup
 	var processNode func(n *html.Node)
 
@@ -88,7 +55,7 @@ func (app *WgetApp) mirror(url, rejectTypes, rejectPaths string, convertLink boo
 						wg.Add(1)
 						go func(link, tagName string) {
 							defer wg.Done()
-							handleLink(link, tagName)
+							app.handleLink(url, rejectPaths, link, tagName, domain, rejectTypes, convertLink)
 						}(link, n.Data)
 					}
 				}
@@ -119,6 +86,39 @@ func (app *WgetApp) mirror(url, rejectTypes, rejectPaths string, convertLink boo
 		wgetutils.ConvertLinks(url)
 	}
 	return nil
+}
+
+// Function to handle links and assets found on the page
+func(app *WgetApp) handleLink(url, rejectPaths, link, tagName, domain, rejectTypes string, convertLink bool) {
+	app.semaphore <- struct{}{}
+	defer func() { <-app.semaphore }()
+
+	baseURL := wgetutils.ResolveURL(url, link)
+	if wgetutils.IsRejectedPath(baseURL, rejectPaths) {
+		fmt.Printf("Skipping Rejected file path: %s\n", baseURL)
+		return
+	}
+	baseURLDomain, err := wgetutils.ExtractDomain(baseURL)
+	if err != nil {
+		fmt.Println("Could not extract domain name for:", baseURLDomain, "\nError:", err)
+		return
+	}
+
+	if baseURLDomain == domain {
+		if tagName == "a" {
+			if strings.HasSuffix(baseURL, "/") || strings.HasSuffix(baseURL, "/index.html") {
+				// Ensure index.html is downloaded first
+				indexURL := strings.TrimRight(baseURL, "/") + "/index.html"
+				if !app.visitedPages[indexURL] {
+					app.downloadAsset(indexURL, domain, rejectTypes)
+					app.mirror(indexURL, rejectTypes, rejectPaths, convertLink)
+				}
+			} else {
+				app.mirror(baseURL, rejectTypes, rejectPaths, convertLink)
+			}
+		}
+		app.downloadAsset(baseURL, domain, rejectTypes)
+	}
 }
 
 // downloadAsset checks if the asset URL has been visited, validates the URL, and initiates the download process.
