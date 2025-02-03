@@ -30,7 +30,6 @@ type WgetApp struct {
 	visitedAssets  map[string]bool
 	muPages        sync.Mutex
 	muAssets       sync.Mutex
-	semaphore      chan struct{}
 	count          int
 	tempConfigFile string
 }
@@ -43,7 +42,6 @@ func newWgetState() *WgetApp {
 		processedURLs: ProcessedURLs{
 			urls: make(map[string]bool),
 		},
-		semaphore: make(chan struct{}),
 		count: 0,
 		tempConfigFile: "progress_config.txt",
 	}

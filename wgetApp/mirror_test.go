@@ -7,8 +7,7 @@ import (
 
 func TestMirror(t *testing.T) {
 	app := newWgetState()
-	app.semaphore = make(chan struct{}, 1)
-
+	
 	t.Run("Valid URL", func(t *testing.T) {
 		err := app.mirror("http://example.com", "", "", false)
 		if err != nil {

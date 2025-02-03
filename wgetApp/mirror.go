@@ -91,9 +91,6 @@ func (app *WgetApp) processNode(url, rejectPaths, domain, rejectTypes string, co
 
 // Function to handle links and assets found on the page
 func (app *WgetApp) handleLink(url, rejectPaths, link, tagName, domain, rejectTypes string, convertLink bool) {
-	// app.semaphore <- struct{}{}
-	// defer func() { <-app.semaphore }()
-
 	baseURL := wgetutils.ResolveURL(url, link)
 	if wgetutils.IsRejectedPath(baseURL, rejectPaths) {
 		fmt.Printf("Skipping Rejected file path: %s\n", baseURL)
