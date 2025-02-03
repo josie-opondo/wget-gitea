@@ -34,7 +34,8 @@
 
 Run the application:
 ```sh
-   go run main.go -url="http://example.com/file.txt" -rate="1M"
+   make
+   ./wget https://assets.01-edu.org/wgetDataSamples/Sample.zip
 ```
 
 ## Testing
